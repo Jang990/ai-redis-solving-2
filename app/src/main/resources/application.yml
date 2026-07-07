@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    # compose의 mysql (호스트 로컬 mysqld가 3306 점유 중이라 3307로 노출). 반드시 이 mysql을 쓸 것.
+    url: jdbc:mysql://localhost:3307/app
+    username: root
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: update   # 배관 기본값 — 네가 만든 엔티티로 테이블 자동 생성. 스키마 씨름은 학습 대상 아님.
+    open-in-view: false
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+# 측정 도구 배선 (brief.md §준비 3) — 답이 아니라 나중에 "왜?"를 파는 계기판.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true

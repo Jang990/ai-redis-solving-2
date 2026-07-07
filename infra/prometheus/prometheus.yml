@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  # 호스트에서 bootRun으로 도는 앱 (평시)
+  - job_name: app-host
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["host.docker.internal:8080"]
+
+  # cluster profile로 컨테이너에서 도는 앱들 (--scale app=N 자동 발견)
+  - job_name: app-cluster
+    metrics_path: /actuator/prometheus
+    dns_sd_configs:
+      - names: ["app"]
+        type: A
+        port: 8080

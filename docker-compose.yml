@@ -1,0 +1,52 @@
+# 요즘마켓 학습 인프라 — 온보딩 시 고정, 이후 스테이지에서 이 파일은 불변(§7)
+# 평시: docker compose up -d  (앱은 호스트 ./gradlew bootRun, 8080)
+# 다중 인스턴스 스테이지(코치가 알림): docker compose --profile cluster up -d --build --scale app=3
+#   → 진입점 http://localhost:8088 (nginx)
+services:
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: app
+    ports: ["3307:3306"]  # 호스트에 로컬 mysqld가 3306 점유 중이라 3307로 노출
+    mem_limit: 512m
+    cpus: "1.0"
+
+  redis:
+    image: redis:7
+    ports: ["6379:6379"]
+
+  app:
+    profiles: [cluster]
+    build: ./app
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/app
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_DATA_REDIS_HOST: redis
+    depends_on: [mysql, redis]
+
+  nginx:
+    profiles: [cluster]
+    image: nginx:alpine
+    volumes:
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports: ["8088:80"]
+    depends_on: [app]
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports: ["9090:9090"]
+
+  grafana:
+    image: grafana/grafana
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+    volumes:
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./infra/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports: ["3000:3000"]
+    depends_on: [prometheus]
