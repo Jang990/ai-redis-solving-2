@@ -50,6 +50,6 @@ public class ProductsController {
         return new ProductDetailResponse(
                 products.getId(), products.getName(),
                 products.getPrice(), products.getCategory(),
-                products.getViewCount());
+                products.getViewCount(), products.getReviewCount(), products.getAvgRating());
     }
 }

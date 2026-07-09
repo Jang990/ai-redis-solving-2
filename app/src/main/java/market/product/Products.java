@@ -20,11 +20,16 @@ public class Products {
     private String category;
     private int viewCount;
 
+    private int reviewCount;
+    private double ratingSum;
+
     public Products(String name, int price, String category) {
         this.name = name;
         this.price = price;
         this.category = category;
         viewCount = 0;
+        reviewCount = 0;
+        ratingSum = 0;
     }
 
     public void changeAll(String name, int price, String category) {
@@ -35,5 +40,14 @@ public class Products {
 
     public void increaseViewCount() {
         this.viewCount++;
+    }
+
+    public void addReview(double rating) {
+        ratingSum += rating;
+        reviewCount++;
+    }
+
+    public double getAvgRating() {
+        return ratingSum / reviewCount;
     }
 }
