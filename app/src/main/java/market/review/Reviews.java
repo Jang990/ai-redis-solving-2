@@ -1,12 +1,10 @@
 package market.review;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import market.product.Products;
 
 @Entity
 @Getter
@@ -18,7 +16,12 @@ public class Reviews {
     private double rating;
     private String content;
 
-    public Reviews(double rating, String content) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", insertable = false, updatable = false)
+    private Products products;
+
+    public Reviews(Products products, double rating, String content) {
+        this.products = products;
         this.content = content;
         this.rating = rating;
     }

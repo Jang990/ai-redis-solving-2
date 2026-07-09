@@ -20,7 +20,7 @@ public class ReviewService {
         Products products = productsRepository.findById(productId)
                 .orElseThrow(IllegalArgumentException::new);
 
-        Reviews reviews = new Reviews(request.rating(), request.content());
+        Reviews reviews = new Reviews(products, request.rating(), request.content());
         products.addReview(reviews.getRating());
 
         return reviewRepository.save(reviews);
